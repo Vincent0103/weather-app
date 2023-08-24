@@ -1,3 +1,5 @@
+import weatherDOM from './weather';
+
 window.addEventListener('DOMContentLoaded', () => {
-  console.log('Setup done!');
+  weatherDOM.load();
 });
