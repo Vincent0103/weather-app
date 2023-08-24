@@ -10,16 +10,6 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/index.js":
-/*!**********************!*\
-  !*** ./src/index.js ***!
-  \**********************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _weather__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./weather */ \"./src/weather.js\");\n\n\nwindow.addEventListener('DOMContentLoaded', () => {\n  _weather__WEBPACK_IMPORTED_MODULE_0__[\"default\"].load();\n});\n\n\n//# sourceURL=webpack://my_package/./src/index.js?");
-
-/***/ }),
-
 /***/ "./src/weather.js":
 /*!************************!*\
   !*** ./src/weather.js ***!
@@ -155,7 +145,7 @@ eval("module.exports = __webpack_require__.p + \"1ef7aefc52f6bee94f4e.jpg\";\n\n
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
-/******/ 	var __webpack_exports__ = __webpack_require__("./src/index.js");
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/weather.js");
 /******/ 	
 /******/ })()
 ;
