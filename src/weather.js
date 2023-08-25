@@ -7,6 +7,8 @@ const weatherLogic = (() => {
     try {
       const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=7&aqi=yes&alerts=no`);
       const weatherData = await response.json();
+      const currDate = new Date();
+      console.log(currDate);
       console.log(weatherData);
       return weatherData;
     } catch {
@@ -21,7 +23,6 @@ const weatherDOM = (() => {
   function changeWeatherData(weatherDataContainer, weatherDataObj) {
     function handleWeatherIcon(condition, container) {
       const weatherIconContainer = container;
-      console.log(weatherIconContainer);
       if (weatherIconContainer.querySelector('svg')) {
         weatherIconContainer.querySelector('svg').remove();
       } else if (weatherIconContainer.querySelector('img')) {
@@ -65,16 +66,16 @@ const weatherDOM = (() => {
     await weatherLogic.getWeatherDataFromLocation(location)
       .then((response) => {
         weatherLocationData = response;
-        console.log(response);
       });
 
     const city = weatherLocationData.location.name;
     const { country } = weatherLocationData.location;
 
+    const currentHour = weatherLocationData.current;
     const forecastDay = weatherLocationData.forecast.forecastday[0];
     const avgTemp = {
-      celsius: Math.round(forecastDay.day.avgtemp_c),
-      fahrenheit: Math.round(forecastDay.day.avgtemp_f),
+      celsius: Math.round(currentHour.temp_c),
+      fahrenheit: Math.round(currentHour.temp_f),
     };
     const maxTemp = {
       celsius: Math.round(forecastDay.day.maxtemp_c),
@@ -84,9 +85,9 @@ const weatherDOM = (() => {
       celsius: Math.round(forecastDay.day.mintemp_c),
       fahrenheit: Math.round(forecastDay.day.mintemp_f),
     };
-    const condition = forecastDay.day.condition.text.toLowerCase();
-    const airQuality = Math.round(forecastDay.day.air_quality.co);
-    const avgHumidity = Math.round(forecastDay.day.avghumidity);
+    const condition = currentHour.condition.text.toLowerCase();
+    const airQuality = Math.round(currentHour.air_quality.co);
+    const avgHumidity = Math.round(currentHour.humidity);
 
     return {
       city, country, avgTemp, minTemp, maxTemp, condition, airQuality, avgHumidity,
@@ -108,6 +109,7 @@ const weatherDOM = (() => {
   }
 
   function content() {
+    const allForecastContainer = document.querySelector('.allForecast-location-weather');
     const weatherPanelContainer = document.querySelector('.weather-panel-container');
     const weatherSearchContainer = document.querySelector('.weather-search-container');
     const weatherDataContainer = weatherPanelContainer.querySelector('.today-location-weather');
@@ -118,7 +120,10 @@ const weatherDOM = (() => {
 
     queryBtn.addEventListener('click', () => {
       getWeatherCityDataObj(inputLocation.value)
-        .then((response) => console.log(response));
+        .then((response) => {
+          const weatherDataObj = response;
+          changeWeatherData(weatherDataContainer, weatherDataObj);
+        });
     });
   }
 
