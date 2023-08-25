@@ -11,12 +11,8 @@
   <script type="text/javascript" src="index.bundle.js"></script>
 </head>
 <body>
-  <div class="bgi-transition-container" id="bgi-1">
-  </div>
-  <div class="bgi-transition-container" id="bgi-2">
-  </div>
-  <div class="weather-panel-container">
-    <form class="weather-location-container" novalidate>
+  <div class="page-container">
+    <form class="weather-search-container" novalidate>
       <div class="search-container">
         <input type="text" name="weather-location" id="weather-location" placeholder="Choose a city">
         <div class="search-btn">
@@ -24,9 +20,71 @@
         </div>
       </div>
     </form>
-    <div class="weather-data-container">
-      <h1 class="location-heading"><span class="city-heading"></span>, <span class="country-heading"></span></h1>
-      <h1 class="avg-temp-heading"></h1>
+    <div class="weather-panel-container">
+      <div class="today-location-weather">
+        <h1 class="location-heading">
+          <span class="city-heading">Paris, </span>
+          <span class="country-heading">France</span>
+        </h1>
+        <h1 class="temp-conditionicon-heading">
+          <span class="temp-heading">28°C</span>
+          <svg class="weather-icon" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><path d="M0 336c0 79.5 64.5 144 144 144H512c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"/></svg>
+        </h1>
+        <h2 class="condition-heading">Cloudy</h2>
+        <div class="minmax-temp-container">
+          <div class="min-temp-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.03 13.92H11.03V5L13.04 4.97V13.92H17.03L12.03 18.92Z" /></svg>
+            <p>20°C</p>
+          </div>
+          <div class="max-temp-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.03 9.97H11.03V18.89L13.04 18.92V9.97H17.03L12.03 4.97Z" /></svg>
+            <p>26.1°C</p>
+          </div>
+        </div>
+        <div class="airANDhumidity-container">
+          <div class="air-quality-container">
+            <h3>Air quality: </h3>
+            <p>280 CO</p>
+          </div>
+          <div class="humidity-container">
+            <h3>Humidity: </h3>
+            <p>74</p>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="allForecast-location-weather">
+        <div class="forcast-location-weather">
+          <h1 class="location-heading">
+            <span class="city-heading">Paris, </span>
+            <span class="country-heading">France</span>
+          </h1>
+          <h1 class="temp-conditionicon-heading">
+            <span class="temp-heading">28°C</span>
+            <svg class="weather-icon" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><path d="M0 336c0 79.5 64.5 144 144 144H512c70.7 0 128-57.3 128-128c0-61.9-44-113.6-102.4-125.4c4.1-10.7 6.4-22.4 6.4-34.6c0-53-43-96-96-96c-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32C167.6 32 96 103.6 96 192c0 2.7 .1 5.4 .2 8.1C40.2 219.8 0 273.2 0 336z"/></svg>
+          </h1>
+          <h2 class="condition-heading">Cloudy</h2>
+          <div class="minmax-temp-container">
+            <div class="min-temp-container">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.03 13.92H11.03V5L13.04 4.97V13.92H17.03L12.03 18.92Z" /></svg>
+              <p>20°C</p>
+            </div>
+            <div class="max-temp-container">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.03 9.97H11.03V18.89L13.04 18.92V9.97H17.03L12.03 4.97Z" /></svg>
+              <p>26.1°C</p>
+            </div>
+          </div>
+          <div class="airANDhumidity-container">
+            <div class="air-quality-container">
+              <h3>Air quality: </h3>
+              <p>280 CO</p>
+            </div>
+            <div class="humidity-container">
+              <h3>Humidity: </h3>
+              <p>74</p>
+            </div>
+          </div>
+        </div>
+      </div> -->
     </div>
   </div>
 </body>
