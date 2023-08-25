@@ -5,10 +5,8 @@ import sunnyIcon from './assets/sunny.svg';
 const weatherLogic = (() => {
   async function getWeatherDataFromLocation(location) {
     try {
-      const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=7&aqi=yes&alerts=no`);
+      const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=10&aqi=yes&alerts=no`);
       const weatherData = await response.json();
-      const currDate = new Date();
-      console.log(currDate);
       console.log(weatherData);
       return weatherData;
     } catch {
@@ -20,7 +18,7 @@ const weatherLogic = (() => {
 })();
 
 const weatherDOM = (() => {
-  function handleWeatherIcon(condition, container) {
+  function handleWeatherIcon(textCondition, container) {
     const weatherIconContainer = container;
     if (weatherIconContainer.querySelector('svg')) {
       weatherIconContainer.querySelector('svg').remove();
@@ -28,12 +26,13 @@ const weatherDOM = (() => {
       weatherIconContainer.querySelector('img').remove();
     }
 
-    const mySvg = new Image();
-    mySvg.classList.add('weather-icon');
-    if (condition.includes('rain')) mySvg.src = rainyIcon;
-    else if (condition.includes('cloud')) mySvg.src = cloudyIcon;
-    else if (condition.includes('sunny')) mySvg.src = sunnyIcon;
-    weatherIconContainer.appendChild(mySvg);
+    const myImg = new Image();
+    myImg.classList.add('weather-icon');
+    if (textCondition.includes('rain')) myImg.src = rainyIcon;
+    else if (textCondition.includes('cloud') || textCondition.includes('overcast')) myImg.src = cloudyIcon;
+    else if (textCondition.includes('sunny')) myImg.src = sunnyIcon;
+    else if (textCondition.includes('clear')) console.error('FILL IT');
+    weatherIconContainer.appendChild(myImg);
   }
 
   function changeHourLocationWeatherData(weatherDataContainer, weatherDataObj) {
@@ -69,8 +68,31 @@ const weatherDOM = (() => {
   }
 
   function changeForecastLocationWeatherData(forecastDataContainer, forecastDataObj, forecastNum) {
+    const forecastDay = forecastDataObj[forecastNum].day;
+
     const tempHeading = forecastDataContainer.querySelector('.temp-heading');
-    tempHeading.textContent = forecastDataObj[forecastNum].day.avgtemp_c;
+    tempHeading.textContent = `${Math.round(forecastDay.avgtemp_c)}°C`;
+
+    const textCondition = forecastDay.condition.text.toLowerCase();
+
+    const tempConditioniconHeading = forecastDataContainer.querySelector('.temp-conditionicon-heading');
+    handleWeatherIcon(textCondition, tempConditioniconHeading);
+
+    const conditionHeading = forecastDataContainer.querySelector('.condition-heading');
+    conditionHeading.textContent = textCondition.slice(0, 1).toUpperCase()
+    + textCondition.slice(1);
+
+    const minTempP = forecastDataContainer.querySelector('.min-temp-container > p');
+    minTempP.textContent = `${Math.round(forecastDay.mintemp_c)}°C`;
+
+    const maxTempP = forecastDataContainer.querySelector('.max-temp-container > p');
+    maxTempP.textContent = `${Math.round(forecastDay.maxtemp_c)}°C`;
+
+    const airQualityP = forecastDataContainer.querySelector('.air-quality-container > p:last-child');
+    airQualityP.textContent = `${Math.round(forecastDay.air_quality.co)} CO`;
+
+    const humidityP = forecastDataContainer.querySelector('.humidity-container > p:last-child');
+    humidityP.textContent = Math.round(forecastDay.avghumidity);
   }
 
   function changeWeatherData(weatherDataContainer, weatherDataObj) {
@@ -127,7 +149,7 @@ const weatherDOM = (() => {
 
   function content() {
     const allForecastContainer = document.querySelector('.allForecast-location-weather');
-    const forecastLocationWeather = document.querySelector('.forecast-location-weather');
+    const forecastLocationWeather = document.querySelectorAll('.forecast-location-weather');
     const weatherPanelContainer = document.querySelector('.weather-panel-container');
     const weatherSearchContainer = document.querySelector('.weather-search-container');
     const weatherDataContainer = weatherPanelContainer.querySelector('.today-location-weather');
@@ -142,7 +164,10 @@ const weatherDOM = (() => {
           const weatherDataObj = response;
           const forecastDataObj = weatherDataObj.forecastDays;
           changeWeatherData(weatherDataContainer, weatherDataObj);
-          changeForecastLocationWeatherData(forecastLocationWeather, forecastDataObj, 0);
+
+          forecastLocationWeather.forEach((container, index) => {
+            changeForecastLocationWeatherData(container, forecastDataObj, index);
+          });
         });
     });
   }
