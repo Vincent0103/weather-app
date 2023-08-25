@@ -1,12 +1,13 @@
-import cloudyBgi from './assets/cloudy.jpg';
-import rainyBgi from './assets/rainy.jpg';
-import sunnyBgi from './assets/sunny.jpg';
+import rainyIcon from './assets/rainy.svg';
+import cloudyIcon from './assets/cloud.svg';
+import sunnyIcon from './assets/sunny.svg';
 
 const weatherLogic = (() => {
   async function getWeatherDataFromLocation(location) {
     try {
       const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=7&aqi=yes&alerts=no`);
       const weatherData = await response.json();
+      console.log(weatherData);
       return weatherData;
     } catch {
       return new Error('Invalid city!');
@@ -17,38 +18,46 @@ const weatherLogic = (() => {
 })();
 
 const weatherDOM = (() => {
-  // function updateWeatherData(weatherElementsObj) {
-  //   weatherLogic.getWeatherDataFromLocation(inputLocation.value)
-  //     .then((response) => {
-  //       weatherLocationData = response;
-  //       changeWeatherData(
-  //         weatherDataContainer,
-  //         weatherLocationData.location.name,
-  //         weatherLocationData.location.country,
-  //       );
-  //     });
-  // }
-
   function changeWeatherData(weatherDataContainer, weatherDataObj) {
-    if (weatherDataObj.condition.includes('rain')) {
-      setTimeout(() => {
-        const bgiTransitionContainer1 = document.querySelector('.bgi-transition-container#bgi-1');
-        const bgiTransitionContainer2 = document.querySelector('.bgi-transition-container#bgi-2');
+    function handleWeatherIcon(condition, container) {
+      const weatherIconContainer = container;
+      console.log(weatherIconContainer);
+      if (weatherIconContainer.querySelector('svg')) {
+        weatherIconContainer.querySelector('svg').remove();
+      } else if (weatherIconContainer.querySelector('img')) {
+        weatherIconContainer.querySelector('img').remove();
+      }
 
-        bgiTransitionContainer1.style.animation = 'fadeOut 1s forwards';
-        bgiTransitionContainer2.style.backgroundImage = `url(${sunnyBgi})`;
-        bgiTransitionContainer2.style.animation = 'fadeIn 1s forwards';
-      });
-
-      console.log(document.body.style.backgroundImage);
+      const mySvg = new Image();
+      mySvg.classList.add('weather-icon');
+      if (condition.includes('rain')) mySvg.src = rainyIcon;
+      else if (condition.includes('cloud')) mySvg.src = cloudyIcon;
+      else if (condition.includes('sunny')) mySvg.src = sunnyIcon;
+      weatherIconContainer.appendChild(mySvg);
     }
+
     const h1 = weatherDataContainer.querySelector('.location-heading');
     const cityHeading = h1.querySelector('.city-heading');
     const countryHeading = h1.querySelector('.country-heading');
-    const avgTempHeading = weatherDataContainer.querySelector('.avg-temp-heading');
-    cityHeading.textContent = weatherDataObj.city;
+    const avgTempHeading = weatherDataContainer.querySelector('.temp-heading');
+    const tempConditioniconHeading = weatherDataContainer.querySelector('.temp-conditionicon-heading');
+    const conditionHeading = weatherDataContainer.querySelector('.condition-heading');
+    const minTempP = weatherDataContainer.querySelector('.min-temp-container > p');
+    const maxTempP = weatherDataContainer.querySelector('.max-temp-container > p');
+    const airQualityP = weatherDataContainer.querySelector('.air-quality-container > p');
+    const humidityP = weatherDataContainer.querySelector('.humidity-container > p');
+    cityHeading.textContent = `${weatherDataObj.city}, `;
     countryHeading.textContent = weatherDataObj.country;
-    avgTempHeading.textContent = `${weatherDataObj.avgTempCelsius}°C`;
+    avgTempHeading.textContent = `${weatherDataObj.avgTemp.celsius}°C`;
+    handleWeatherIcon(weatherDataObj.condition, tempConditioniconHeading);
+
+    conditionHeading.textContent = weatherDataObj.condition.slice(0, 1).toUpperCase()
+    + weatherDataObj.condition.slice(1);
+
+    minTempP.textContent = `${weatherDataObj.minTemp.celsius}°C`;
+    maxTempP.textContent = `${weatherDataObj.maxTemp.celsius}°C`;
+    airQualityP.textContent = `${weatherDataObj.airQuality} CO`;
+    humidityP.textContent = weatherDataObj.avgHumidity;
   }
 
   async function getWeatherCityDataObj(location) {
@@ -61,13 +70,26 @@ const weatherDOM = (() => {
 
     const city = weatherLocationData.location.name;
     const { country } = weatherLocationData.location;
-    const avgTempCelsius = weatherLocationData.forecast.forecastday[0].day.avgtemp_c;
-    const maxTempCelsius = weatherLocationData.forecast.forecastday[0].day.maxtemp_c;
-    const minTempCelsius = weatherLocationData.forecast.forecastday[0].day.mintemp_c;
-    const condition = weatherLocationData.forecast.forecastday[0].day.condition.text;
+
+    const forecastDay = weatherLocationData.forecast.forecastday[0];
+    const avgTemp = {
+      celsius: Math.round(forecastDay.day.avgtemp_c),
+      fahrenheit: Math.round(forecastDay.day.avgtemp_f),
+    };
+    const maxTemp = {
+      celsius: Math.round(forecastDay.day.maxtemp_c),
+      fahrenheit: Math.round(forecastDay.day.maxtemp_f),
+    };
+    const minTemp = {
+      celsius: Math.round(forecastDay.day.mintemp_c),
+      fahrenheit: Math.round(forecastDay.day.mintemp_f),
+    };
+    const condition = forecastDay.day.condition.text.toLowerCase();
+    const airQuality = Math.round(forecastDay.day.air_quality.co);
+    const avgHumidity = Math.round(forecastDay.day.avghumidity);
 
     return {
-      city, country, avgTempCelsius, minTempCelsius, maxTempCelsius, condition,
+      city, country, avgTemp, minTemp, maxTemp, condition, airQuality, avgHumidity,
     };
   }
 
@@ -87,10 +109,10 @@ const weatherDOM = (() => {
 
   function content() {
     const weatherPanelContainer = document.querySelector('.weather-panel-container');
-    const weatherLocationContainer = weatherPanelContainer.querySelector('.weather-location-container');
-    const weatherDataContainer = weatherPanelContainer.querySelector('.weather-data-container');
-    const inputLocation = weatherLocationContainer.querySelector('input[type="text"]');
-    const queryBtn = weatherLocationContainer.querySelector('.search-btn');
+    const weatherSearchContainer = document.querySelector('.weather-search-container');
+    const weatherDataContainer = weatherPanelContainer.querySelector('.today-location-weather');
+    const inputLocation = weatherSearchContainer.querySelector('input[type="text"]');
+    const queryBtn = weatherSearchContainer.querySelector('.search-btn');
 
     handleEnterKeypress(inputLocation, weatherDataContainer);
 
