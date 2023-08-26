@@ -1,6 +1,8 @@
 import rainyIcon from './assets/rainy.svg';
 import cloudyIcon from './assets/cloud.svg';
 import sunnyIcon from './assets/sunny.svg';
+import clearIcon from './assets/clear.svg';
+import stormyIcon from './assets/stormy.svg';
 
 const weatherLogic = (() => {
   async function getWeatherDataFromLocation(location) {
@@ -33,18 +35,14 @@ const weatherDOM = (() => {
     if (textCondition.includes('rain')) myImg.src = rainyIcon;
     else if (textCondition.includes('cloud') || textCondition.includes('overcast')) myImg.src = cloudyIcon;
     else if (textCondition.includes('sunny')) myImg.src = sunnyIcon;
-    else if (textCondition.includes('clear')) console.error('FILL IT');
+    else if (textCondition.includes('clear')) myImg.src = clearIcon;
+    else if (textCondition.includes('storm') || textCondition.includes('thunder')) myImg.src = stormyIcon;
     weatherIconContainer.appendChild(myImg);
   }
 
   function changeHourLocationWeatherData(weatherDataContainer, weatherDataObj) {
-    const h1 = weatherDataContainer.querySelector('.location-heading');
-
-    const cityHeading = h1.querySelector('.city-heading');
-    cityHeading.textContent = `${weatherDataObj.city}, `;
-
-    const countryHeading = h1.querySelector('.country-heading');
-    countryHeading.textContent = weatherDataObj.country;
+    const locationHeading = weatherDataContainer.querySelector('.location-heading');
+    locationHeading.textContent = `${weatherDataObj.city}, ${weatherDataObj.country}`;
 
     const avgTempHeading = weatherDataContainer.querySelector('.temp-heading');
     avgTempHeading.textContent = `${weatherDataObj.avgTemp.celsius}°C`;
@@ -67,6 +65,12 @@ const weatherDOM = (() => {
 
     const humidityP = weatherDataContainer.querySelector('.humidity-container > p');
     humidityP.textContent = weatherDataObj.avgHumidity;
+
+    const uvP = weatherDataContainer.querySelector('.uv-container > p');
+    uvP.textContent = weatherDataObj.uv;
+
+    const windSpeedP = weatherDataContainer.querySelector('.wind-container > p');
+    windSpeedP.textContent = weatherDataObj.wind;
   }
 
   function changeForecastLocationWeatherData(forecastDataContainer, forecastDataObj, forecastNum) {
@@ -95,6 +99,12 @@ const weatherDOM = (() => {
 
     const humidityP = forecastDataContainer.querySelector('.humidity-container > p:last-child');
     humidityP.textContent = Math.round(forecastDay.avghumidity);
+
+    const uvP = forecastDataContainer.querySelector('.uv-container > p:last-child');
+    uvP.textContent = forecastDay.uv;
+
+    const windSpeedP = forecastDataContainer.querySelector('.wind-container > p:last-child');
+    windSpeedP.textContent = forecastDay.maxwind_kph;
   }
 
   async function getWeatherCityDataObj(location) {
@@ -125,9 +135,21 @@ const weatherDOM = (() => {
     const condition = currentHour.condition.text.toLowerCase();
     const airQuality = Math.round(currentHour.air_quality.co);
     const avgHumidity = Math.round(currentHour.humidity);
+    const { uv } = currentHour;
+    const wind = Math.round(currentHour.wind_kph);
 
     return {
-      city, country, avgTemp, minTemp, maxTemp, condition, airQuality, avgHumidity, forecastDays,
+      city,
+      country,
+      avgTemp,
+      minTemp,
+      maxTemp,
+      condition,
+      airQuality,
+      avgHumidity,
+      forecastDays,
+      uv,
+      wind,
     };
   }
 
