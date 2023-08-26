@@ -68,6 +68,7 @@ const weatherLogic = (() => {
 
 const weatherDOM = (() => {
   let currentWeatherDataObj;
+  let currentTempUnit;
 
   function handleWeatherIcon(textCondition, container) {
     const weatherIconContainer = container;
@@ -165,10 +166,12 @@ const weatherDOM = (() => {
       const btnText = FahCelBtn.textContent.toLowerCase();
       if (btnText.includes('fahrenheit')) {
         btn.textContent = 'To Celsius (°C)';
-        changeTempUnit('fahrenheit');
+        currentTempUnit = 'fahrenheit';
+        changeTempUnit(currentTempUnit);
       } else {
         btn.textContent = 'To Fahrenheit (F)';
-        changeTempUnit('celsius');
+        currentTempUnit = 'celsius';
+        changeTempUnit(currentTempUnit);
       }
     });
   }
@@ -176,9 +179,14 @@ const weatherDOM = (() => {
   function changeHourLocationWeatherData(weatherDataContainer, weatherDataObj) {
     const locationHeading = weatherDataContainer.querySelector('.location-heading');
     locationHeading.textContent = `${weatherDataObj.city}, ${weatherDataObj.country}`;
+    console.log(currentTempUnit);
 
     const avgTempHeading = weatherDataContainer.querySelector('.temp-heading');
-    avgTempHeading.textContent = `${weatherDataObj.avgTemp.celsius}°C`;
+    if (currentTempUnit === 'celsius') {
+      avgTempHeading.textContent = `${weatherDataObj.avgTemp.celsius}°C`;
+    } else {
+      avgTempHeading.textContent = `${weatherDataObj.avgTemp.fahrenheit} F`;
+    }
 
     const tempConditioniconHeading = weatherDataContainer.querySelector('.temp-conditionicon-heading');
     handleWeatherIcon(weatherDataObj.condition, tempConditioniconHeading);
@@ -188,10 +196,18 @@ const weatherDOM = (() => {
     + weatherDataObj.condition.slice(1);
 
     const minTempP = weatherDataContainer.querySelector('.min-temp-container > p');
-    minTempP.textContent = `${weatherDataObj.minTemp.celsius}°C`;
+    if (currentTempUnit === 'celsius') {
+      minTempP.textContent = `${weatherDataObj.minTemp.celsius}°C`;
+    } else {
+      minTempP.textContent = `${weatherDataObj.minTemp.fahrenheit} F`;
+    }
 
     const maxTempP = weatherDataContainer.querySelector('.max-temp-container > p');
-    maxTempP.textContent = `${weatherDataObj.maxTemp.celsius}°C`;
+    if (currentTempUnit === 'celsius') {
+      maxTempP.textContent = `${weatherDataObj.maxTemp.celsius}°C`;
+    } else {
+      maxTempP.textContent = `${weatherDataObj.maxTemp.fahrenheit} F`;
+    }
 
     const airQualityP = weatherDataContainer.querySelector('.air-quality-container > p');
     airQualityP.textContent = `${weatherDataObj.airQuality} CO`;
@@ -210,7 +226,11 @@ const weatherDOM = (() => {
     const forecastDay = forecastDataObj[forecastNum].day;
 
     const tempHeading = forecastDataContainer.querySelector('.temp-heading');
-    tempHeading.textContent = `${Math.round(forecastDay.avgtemp_c)}°C`;
+    if (currentTempUnit === 'celsius') {
+      tempHeading.textContent = `${Math.round(forecastDay.avgtemp_c)}°C`;
+    } else {
+      tempHeading.textContent = `${Math.round(forecastDay.avgtemp_f)} F`;
+    }
 
     const textCondition = forecastDay.condition.text.toLowerCase();
 
@@ -222,10 +242,18 @@ const weatherDOM = (() => {
     + textCondition.slice(1);
 
     const minTempP = forecastDataContainer.querySelector('.min-temp-container > p');
-    minTempP.textContent = `${Math.round(forecastDay.mintemp_c)}°C`;
+    if (currentTempUnit === 'celsius') {
+      minTempP.textContent = `${Math.round(forecastDay.mintemp_c)}°C`;
+    } else {
+      minTempP.textContent = `${Math.round(forecastDay.mintemp_f)} F`;
+    }
 
     const maxTempP = forecastDataContainer.querySelector('.max-temp-container > p');
-    maxTempP.textContent = `${Math.round(forecastDay.maxtemp_c)}°C`;
+    if (currentTempUnit === 'celsius') {
+      maxTempP.textContent = `${Math.round(forecastDay.maxtemp_c)}°C`;
+    } else {
+      maxTempP.textContent = `${Math.round(forecastDay.maxtemp_f)} F`;
+    }
 
     const airQualityP = forecastDataContainer.querySelector('.air-quality-container > p:last-child');
     airQualityP.textContent = `${Math.round(forecastDay.air_quality.co)} CO`;
@@ -278,6 +306,7 @@ const weatherDOM = (() => {
     const weatherPanelContainer = document.querySelector('.weather-panel-container');
     const weatherSearchContainer = document.querySelector('.weather-search-container');
     const weatherDataContainer = weatherPanelContainer.querySelector('.today-location-weather');
+    currentTempUnit = 'celsius';
 
     loadWeatherData('Paris', weatherDataContainer, forecastLocationWeather);
 
