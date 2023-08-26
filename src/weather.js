@@ -270,14 +270,13 @@ const weatherDOM = (() => {
 
     if (forecastNum >= 1 && forecastNum <= 2) {
       let currentDayNum;
-      let incrementor = 0;
       const forecastDayHeading = forecastDataContainer.querySelector('.forecast-day-heading');
 
+      // get the day weather name for the last two forecast day containers
       if (forecastNum === 1) {
-        currentDayNum = currentWeatherDataObj.currentDay;
+        currentDayNum = currentWeatherDataObj.currentDay + 1;
       } else if (forecastNum === 2) {
-        incrementor += 1;
-        currentDayNum = Number.parseInt(currentWeatherDataObj.currentDay, 10) + incrementor;
+        currentDayNum = Number.parseInt(currentWeatherDataObj.currentDay, 10) + 2;
       }
 
       currentDayNum = weatherLogic.getProperDayNum(currentDayNum);
