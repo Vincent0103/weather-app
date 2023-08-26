@@ -153,6 +153,19 @@ const weatherDOM = (() => {
     };
   }
 
+  function loadWeatherData(location, weatherDataContainer, forecastLocationWeather) {
+    getWeatherCityDataObj(location)
+      .then((response) => {
+        const weatherDataObj = response;
+        const forecastDataObj = weatherDataObj.forecastDays;
+        changeHourLocationWeatherData(weatherDataContainer, weatherDataObj);
+
+        forecastLocationWeather.forEach((container, index) => {
+          changeForecastLocationWeatherData(container, forecastDataObj, index);
+        });
+      });
+  }
+
   function handleEnterKeypress(inputContainer, weatherDataContainer, type) {
     inputContainer.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
@@ -183,20 +196,15 @@ const weatherDOM = (() => {
     const inputLocation = weatherSearchContainer.querySelector('input[type="text"]');
     const queryBtn = weatherSearchContainer.querySelector('.search-btn');
 
+    // navigator.geolocation.getCurrentPosition();
+
+    loadWeatherData('Paris', weatherDataContainer, forecastLocationWeather);
+
     handleEnterKeypress(inputLocation, weatherDataContainer, 'hour');
     handleEnterKeypress(inputLocation, forecastLocationWeather, 'forecast');
 
     queryBtn.addEventListener('click', () => {
-      getWeatherCityDataObj(inputLocation.value)
-        .then((response) => {
-          const weatherDataObj = response;
-          const forecastDataObj = weatherDataObj.forecastDays;
-          changeHourLocationWeatherData(weatherDataContainer, weatherDataObj);
-
-          forecastLocationWeather.forEach((container, index) => {
-            changeForecastLocationWeatherData(container, forecastDataObj, index);
-          });
-        });
+      loadWeatherData(inputLocation.value, weatherDataContainer, forecastLocationWeather);
     });
   }
 

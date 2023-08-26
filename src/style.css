@@ -9,7 +9,7 @@ body {
   margin: 0;
   padding: 13px;
   box-sizing: border-box;
-  height: 100%;
+  height: max(597px, 100dvh);
 }
 
 svg {
@@ -41,6 +41,25 @@ svg {
     opacity: 1;
   }
 }
+
+.input-container {
+  display: flex;
+  align-items: center;
+}
+
+.FahCel-btn-container > button {
+  background-color: #9fbaff;
+  color: #232938;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 5px 10px;
+  border: 2px solid #8bacff;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0, 0, 0, .05);
+  margin-right: 40px;
+  white-space: nowrap;
+}
+
 
 .weather-search-container {
   width: 100%;
@@ -110,9 +129,7 @@ svg {
   justify-content: center;
   gap: 7px;
   font-size: 2rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
 }
 
 .temp-conditionicon-heading {
@@ -212,6 +229,7 @@ svg {
   background-image: linear-gradient(#EBF1FF, #bfd1ff);
   border-right: 2px solid #b1c7ff;
   border-left: 2px solid #b1c7ff;
+  width: 100%;
   padding: 20px;
 }
 
