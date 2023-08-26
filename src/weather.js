@@ -7,10 +7,9 @@ import stormyIcon from './assets/stormy.svg';
 const weatherLogic = (() => {
   async function getWeatherDataFromLocation(location) {
     try {
-      const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=10&aqi=yes&alerts=no`);
+      const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=3&aqi=yes&alerts=no`);
       const weatherData = await response.json();
       const currentDay = new Date(weatherData.forecast.forecastday[0].date);
-      console.log(weatherData);
       console.log(currentDay.getDay());
       return weatherData;
     } catch {
@@ -18,10 +17,58 @@ const weatherLogic = (() => {
     }
   }
 
-  return { getWeatherDataFromLocation };
+  async function getWeatherCityDataObj(location) {
+    let weatherLocationData;
+    await weatherLogic.getWeatherDataFromLocation(location)
+      .then((response) => {
+        weatherLocationData = response;
+      });
+
+    const city = weatherLocationData.location.name;
+    const { country } = weatherLocationData.location;
+
+    const currentHour = weatherLocationData.current;
+    const forecastDay = weatherLocationData.forecast.forecastday[0];
+    const forecastDays = weatherLocationData.forecast.forecastday;
+    const avgTemp = {
+      celsius: Math.round(currentHour.temp_c),
+      fahrenheit: Math.round(currentHour.temp_f),
+    };
+    const maxTemp = {
+      celsius: Math.round(forecastDay.day.maxtemp_c),
+      fahrenheit: Math.round(forecastDay.day.maxtemp_f),
+    };
+    const minTemp = {
+      celsius: Math.round(forecastDay.day.mintemp_c),
+      fahrenheit: Math.round(forecastDay.day.mintemp_f),
+    };
+    const condition = currentHour.condition.text.toLowerCase();
+    const airQuality = Math.round(currentHour.air_quality.co);
+    const avgHumidity = Math.round(currentHour.humidity);
+    const { uv } = currentHour;
+    const wind = Math.round(currentHour.wind_kph);
+
+    return {
+      city,
+      country,
+      avgTemp,
+      minTemp,
+      maxTemp,
+      condition,
+      airQuality,
+      avgHumidity,
+      forecastDays,
+      uv,
+      wind,
+    };
+  }
+
+  return { getWeatherDataFromLocation, getWeatherCityDataObj };
 })();
 
 const weatherDOM = (() => {
+  let currentWeatherDataObj;
+
   function handleWeatherIcon(textCondition, container) {
     const weatherIconContainer = container;
     if (weatherIconContainer.querySelector('svg')) {
@@ -38,6 +85,92 @@ const weatherDOM = (() => {
     else if (textCondition.includes('clear')) myImg.src = clearIcon;
     else if (textCondition.includes('storm') || textCondition.includes('thunder')) myImg.src = stormyIcon;
     weatherIconContainer.appendChild(myImg);
+  }
+
+  function changeTempUnit(unit) {
+    const tempHeadings = document.querySelectorAll('.temp-heading');
+    const minTempPs = document.querySelectorAll('.min-temp-container > p');
+    const maxTempPs = document.querySelectorAll('.max-temp-container > p');
+    const forecastDataObj = currentWeatherDataObj.forecastDays;
+    console.log(forecastDataObj);
+    let value;
+
+    tempHeadings.forEach((tempHeading, index) => {
+      const heading = tempHeading;
+      if (unit === 'fahrenheit') {
+        if (index === 0) {
+          value = Math.round(currentWeatherDataObj.avgTemp.fahrenheit);
+          heading.textContent = `${value} F`;
+        } else {
+          value = Math.round(forecastDataObj[index - 1].day.avgtemp_f);
+          heading.textContent = `${value} F`;
+        }
+      } else if (unit === 'celsius') {
+        if (index === 0) {
+          value = Math.round(currentWeatherDataObj.avgTemp.celsius);
+          heading.textContent = `${value}°C`;
+        } else {
+          value = Math.round(forecastDataObj[index - 1].day.avgtemp_c);
+          heading.textContent = `${value}°C`;
+        }
+      }
+    });
+
+    minTempPs.forEach((minTempP, index) => {
+      const p = minTempP;
+      if (unit === 'fahrenheit') {
+        if (index === 0) {
+          value = Math.round(currentWeatherDataObj.minTemp.fahrenheit);
+          p.textContent = `${value} F`;
+        } else {
+          value = Math.round(forecastDataObj[index - 1].day.mintemp_f);
+          p.textContent = `${value} F`;
+        }
+      } else if (unit === 'celsius') {
+        if (index === 0) {
+          value = Math.round(currentWeatherDataObj.minTemp.celsius);
+          p.textContent = `${value}°C`;
+        } else {
+          value = Math.round(forecastDataObj[index - 1].day.mintemp_c);
+          p.textContent = `${value}°C`;
+        }
+      }
+    });
+
+    maxTempPs.forEach((maxTempP, index) => {
+      const p = maxTempP;
+      if (unit === 'fahrenheit') {
+        if (index === 0) {
+          value = Math.round(currentWeatherDataObj.maxTemp.fahrenheit);
+          p.textContent = `${value} F`;
+        } else {
+          value = Math.round(forecastDataObj[index - 1].day.maxtemp_f);
+          p.textContent = `${value} F`;
+        }
+      } else if (unit === 'celsius') {
+        if (index === 0) {
+          value = Math.round(currentWeatherDataObj.maxTemp.celsius);
+          p.textContent = `${value}°C`;
+        } else {
+          value = Math.round(forecastDataObj[index - 1].day.maxtemp_c);
+          p.textContent = `${value}°C`;
+        }
+      }
+    });
+  }
+
+  function handleFahCelBtn(FahCelBtn) {
+    const btn = FahCelBtn;
+    FahCelBtn.addEventListener('click', () => {
+      const btnText = FahCelBtn.textContent.toLowerCase();
+      if (btnText.includes('fahrenheit')) {
+        btn.textContent = 'To Celsius (°C)';
+        changeTempUnit('fahrenheit');
+      } else {
+        btn.textContent = 'To Fahrenheit (F)';
+        changeTempUnit('celsius');
+      }
+    });
   }
 
   function changeHourLocationWeatherData(weatherDataContainer, weatherDataObj) {
@@ -107,58 +240,12 @@ const weatherDOM = (() => {
     windSpeedP.textContent = forecastDay.maxwind_kph;
   }
 
-  async function getWeatherCityDataObj(location) {
-    let weatherLocationData;
-    await weatherLogic.getWeatherDataFromLocation(location)
-      .then((response) => {
-        weatherLocationData = response;
-      });
-
-    const city = weatherLocationData.location.name;
-    const { country } = weatherLocationData.location;
-
-    const currentHour = weatherLocationData.current;
-    const forecastDay = weatherLocationData.forecast.forecastday[0];
-    const forecastDays = weatherLocationData.forecast.forecastday;
-    const avgTemp = {
-      celsius: Math.round(currentHour.temp_c),
-      fahrenheit: Math.round(currentHour.temp_f),
-    };
-    const maxTemp = {
-      celsius: Math.round(forecastDay.day.maxtemp_c),
-      fahrenheit: Math.round(forecastDay.day.maxtemp_f),
-    };
-    const minTemp = {
-      celsius: Math.round(forecastDay.day.mintemp_c),
-      fahrenheit: Math.round(forecastDay.day.mintemp_f),
-    };
-    const condition = currentHour.condition.text.toLowerCase();
-    const airQuality = Math.round(currentHour.air_quality.co);
-    const avgHumidity = Math.round(currentHour.humidity);
-    const { uv } = currentHour;
-    const wind = Math.round(currentHour.wind_kph);
-
-    return {
-      city,
-      country,
-      avgTemp,
-      minTemp,
-      maxTemp,
-      condition,
-      airQuality,
-      avgHumidity,
-      forecastDays,
-      uv,
-      wind,
-    };
-  }
-
   function loadWeatherData(location, weatherDataContainer, forecastLocationWeather) {
-    getWeatherCityDataObj(location)
+    weatherLogic.getWeatherCityDataObj(location)
       .then((response) => {
-        const weatherDataObj = response;
-        const forecastDataObj = weatherDataObj.forecastDays;
-        changeHourLocationWeatherData(weatherDataContainer, weatherDataObj);
+        currentWeatherDataObj = response;
+        const forecastDataObj = currentWeatherDataObj.forecastDays;
+        changeHourLocationWeatherData(weatherDataContainer, currentWeatherDataObj);
 
         forecastLocationWeather.forEach((container, index) => {
           changeForecastLocationWeatherData(container, forecastDataObj, index);
@@ -170,15 +257,13 @@ const weatherDOM = (() => {
     inputContainer.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        let weatherDataObj;
-        getWeatherCityDataObj(inputContainer.value)
+        weatherLogic.getWeatherCityDataObj(inputContainer.value)
           .then((response) => {
-            weatherDataObj = response;
+            currentWeatherDataObj = response;
             if (type === 'hour') {
-              console.log('doing');
-              changeHourLocationWeatherData(weatherDataContainer, weatherDataObj);
+              changeHourLocationWeatherData(weatherDataContainer, currentWeatherDataObj);
             } else if (type === 'forecast') {
-              const forecastDataObj = weatherDataObj.forecastDays;
+              const forecastDataObj = currentWeatherDataObj.forecastDays;
               weatherDataContainer.forEach((container, index) => {
                 changeForecastLocationWeatherData(container, forecastDataObj, index);
               });
@@ -193,16 +278,17 @@ const weatherDOM = (() => {
     const weatherPanelContainer = document.querySelector('.weather-panel-container');
     const weatherSearchContainer = document.querySelector('.weather-search-container');
     const weatherDataContainer = weatherPanelContainer.querySelector('.today-location-weather');
-    const inputLocation = weatherSearchContainer.querySelector('input[type="text"]');
-    const queryBtn = weatherSearchContainer.querySelector('.search-btn');
-
-    // navigator.geolocation.getCurrentPosition();
 
     loadWeatherData('Paris', weatherDataContainer, forecastLocationWeather);
 
+    const inputLocation = weatherSearchContainer.querySelector('input[type="text"]');
     handleEnterKeypress(inputLocation, weatherDataContainer, 'hour');
     handleEnterKeypress(inputLocation, forecastLocationWeather, 'forecast');
 
+    const FahCelBtn = document.querySelector('.FahCel-btn-container > button');
+    handleFahCelBtn(FahCelBtn);
+
+    const queryBtn = weatherSearchContainer.querySelector('.search-btn');
     queryBtn.addEventListener('click', () => {
       loadWeatherData(inputLocation.value, weatherDataContainer, forecastLocationWeather);
     });

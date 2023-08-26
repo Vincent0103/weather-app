@@ -58,6 +58,11 @@ svg {
   box-shadow: 0 0 5px rgba(0, 0, 0, .05);
   margin-right: 40px;
   white-space: nowrap;
+  transition: transform .2s;
+}
+
+.FahCel-btn-container > button:hover {
+  transform: scale(1.05);
 }
 
 
