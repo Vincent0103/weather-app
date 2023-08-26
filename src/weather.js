@@ -3,6 +3,7 @@ import cloudyIcon from './assets/cloud.svg';
 import sunnyIcon from './assets/sunny.svg';
 import clearIcon from './assets/clear.svg';
 import stormyIcon from './assets/stormy.svg';
+import windyIcon from './assets/windy.svg';
 
 function displayLoadingScreen(type) {
   const darkenBodyDiv = document.querySelector('.darken-body-div');
@@ -120,6 +121,8 @@ const weatherDOM = (() => {
     else if (textCondition.includes('sunny')) myImg.src = sunnyIcon;
     else if (textCondition.includes('clear')) myImg.src = clearIcon;
     else if (textCondition.includes('storm') || textCondition.includes('thunder')) myImg.src = stormyIcon;
+    else if (textCondition.includes('mist')) myImg.src = windyIcon;
+    else myImg.src = cloudyIcon;
     weatherIconContainer.appendChild(myImg);
   }
 
