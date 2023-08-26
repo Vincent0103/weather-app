@@ -10,18 +10,29 @@ function displayLoadingScreen(type) {
   else darkenBodyDiv.style.display = 'none';
 }
 
+function handleInvalidInput(type) {
+  const inputContainer = document.querySelector('.search-container > #weather-location');
+  if (type) {
+    inputContainer.classList.add('invalid');
+  } else {
+    inputContainer.classList.remove('invalid');
+  }
+}
+
 const weatherLogic = (() => {
   async function getWeatherDataFromLocation(location) {
     try {
       displayLoadingScreen('display');
-      console.log('display');
       const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=3&aqi=yes&alerts=no`);
       const weatherData = await response.json();
+      handleInvalidInput(false);
       const currentDay = new Date(weatherData.forecast.forecastday[0].date);
       weatherData.currentDay = currentDay.getDay();
       return weatherData;
     } catch {
       displayLoadingScreen('none');
+      handleInvalidInput(true);
+      return new Error('Invalid country/city name!');
     }
   }
 
