@@ -4,16 +4,24 @@ import sunnyIcon from './assets/sunny.svg';
 import clearIcon from './assets/clear.svg';
 import stormyIcon from './assets/stormy.svg';
 
+function displayLoadingScreen(type) {
+  const darkenBodyDiv = document.querySelector('.darken-body-div');
+  if (type === 'display') darkenBodyDiv.style.display = 'flex';
+  else darkenBodyDiv.style.display = 'none';
+}
+
 const weatherLogic = (() => {
   async function getWeatherDataFromLocation(location) {
     try {
+      displayLoadingScreen('display');
+      console.log('display');
       const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=3&aqi=yes&alerts=no`);
       const weatherData = await response.json();
       const currentDay = new Date(weatherData.forecast.forecastday[0].date);
       weatherData.currentDay = currentDay.getDay();
       return weatherData;
     } catch {
-      return new Error('Invalid city!');
+      displayLoadingScreen('none');
     }
   }
 
@@ -68,13 +76,13 @@ const weatherLogic = (() => {
 
   function getProperDayNum(currentDayNum) {
     let dayNum = currentDayNum;
-    if (dayNum > 7) {
-      dayNum -= 7;
+    if (dayNum > 6) {
+      dayNum -= 6;
     }
 
     // edge case to avoid any infinite loop
-    if (dayNum > 7) {
-      dayNum = 1;
+    if (dayNum > 6) {
+      dayNum = 0;
     }
     return dayNum;
   }
@@ -240,13 +248,13 @@ const weatherDOM = (() => {
     const forecastDay = forecastDataObj[forecastNum].day;
 
     const daysNumsIdentifiers = {
+      0: 'sunday',
       1: 'monday',
       2: 'tuesday',
       3: 'wednesday',
       4: 'thursday',
       5: 'friday',
       6: 'saturday',
-      7: 'sunday',
     };
 
     if (forecastNum >= 1 && forecastNum <= 2) {
@@ -309,6 +317,8 @@ const weatherDOM = (() => {
 
     const windSpeedP = forecastDataContainer.querySelector('.wind-container > p:last-child');
     windSpeedP.textContent = forecastDay.maxwind_kph;
+
+    displayLoadingScreen('none');
   }
 
   function loadWeatherData(location, weatherDataContainer, forecastLocationWeather) {
@@ -370,7 +380,7 @@ const weatherDOM = (() => {
     content();
   }
 
-  return { load };
+  return { load, displayLoadingScreen };
 })();
 
 export default weatherDOM;
