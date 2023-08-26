@@ -7,7 +7,9 @@ const weatherLogic = (() => {
     try {
       const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=10&aqi=yes&alerts=no`);
       const weatherData = await response.json();
+      const currentDay = new Date(weatherData.forecast.forecastday[0].date);
       console.log(weatherData);
+      console.log(currentDay.getDay());
       return weatherData;
     } catch {
       return new Error('Invalid city!');
@@ -95,10 +97,6 @@ const weatherDOM = (() => {
     humidityP.textContent = Math.round(forecastDay.avghumidity);
   }
 
-  function changeWeatherData(weatherDataContainer, weatherDataObj) {
-    changeHourLocationWeatherData(weatherDataContainer, weatherDataObj);
-  }
-
   async function getWeatherCityDataObj(location) {
     let weatherLocationData;
     await weatherLogic.getWeatherDataFromLocation(location)
@@ -133,7 +131,7 @@ const weatherDOM = (() => {
     };
   }
 
-  function handleEnterKeypress(inputContainer, weatherDataContainer) {
+  function handleEnterKeypress(inputContainer, weatherDataContainer, type) {
     inputContainer.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -141,14 +139,21 @@ const weatherDOM = (() => {
         getWeatherCityDataObj(inputContainer.value)
           .then((response) => {
             weatherDataObj = response;
-            changeWeatherData(weatherDataContainer, weatherDataObj);
+            if (type === 'hour') {
+              console.log('doing');
+              changeHourLocationWeatherData(weatherDataContainer, weatherDataObj);
+            } else if (type === 'forecast') {
+              const forecastDataObj = weatherDataObj.forecastDays;
+              weatherDataContainer.forEach((container, index) => {
+                changeForecastLocationWeatherData(container, forecastDataObj, index);
+              });
+            }
           });
       }
     });
   }
 
   function content() {
-    const allForecastContainer = document.querySelector('.allForecast-location-weather');
     const forecastLocationWeather = document.querySelectorAll('.forecast-location-weather');
     const weatherPanelContainer = document.querySelector('.weather-panel-container');
     const weatherSearchContainer = document.querySelector('.weather-search-container');
@@ -156,14 +161,15 @@ const weatherDOM = (() => {
     const inputLocation = weatherSearchContainer.querySelector('input[type="text"]');
     const queryBtn = weatherSearchContainer.querySelector('.search-btn');
 
-    handleEnterKeypress(inputLocation, weatherDataContainer);
+    handleEnterKeypress(inputLocation, weatherDataContainer, 'hour');
+    handleEnterKeypress(inputLocation, forecastLocationWeather, 'forecast');
 
     queryBtn.addEventListener('click', () => {
       getWeatherCityDataObj(inputLocation.value)
         .then((response) => {
           const weatherDataObj = response;
           const forecastDataObj = weatherDataObj.forecastDays;
-          changeWeatherData(weatherDataContainer, weatherDataObj);
+          changeHourLocationWeatherData(weatherDataContainer, weatherDataObj);
 
           forecastLocationWeather.forEach((container, index) => {
             changeForecastLocationWeatherData(container, forecastDataObj, index);
