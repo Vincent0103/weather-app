@@ -28,7 +28,6 @@ const weatherLogic = (() => {
       handleInvalidInput(false);
       const currentDay = new Date(weatherData.forecast.forecastday[0].date);
       weatherData.currentDay = currentDay.getDay();
-      console.log(weatherData);
       return weatherData;
     } catch {
       displayLoadingScreen('none');
