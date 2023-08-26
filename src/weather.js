@@ -10,7 +10,7 @@ const weatherLogic = (() => {
       const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=50e0ff8ee4614270bd491128232208&q=${location}&days=3&aqi=yes&alerts=no`);
       const weatherData = await response.json();
       const currentDay = new Date(weatherData.forecast.forecastday[0].date);
-      console.log(currentDay.getDay());
+      weatherData.currentDay = currentDay.getDay();
       return weatherData;
     } catch {
       return new Error('Invalid city!');
@@ -23,6 +23,8 @@ const weatherLogic = (() => {
       .then((response) => {
         weatherLocationData = response;
       });
+
+    const { currentDay } = weatherLocationData;
 
     const city = weatherLocationData.location.name;
     const { country } = weatherLocationData.location;
@@ -49,6 +51,7 @@ const weatherLogic = (() => {
     const wind = Math.round(currentHour.wind_kph);
 
     return {
+      currentDay,
       city,
       country,
       avgTemp,
@@ -63,7 +66,20 @@ const weatherLogic = (() => {
     };
   }
 
-  return { getWeatherDataFromLocation, getWeatherCityDataObj };
+  function getProperDayNum(currentDayNum) {
+    let dayNum = currentDayNum;
+    if (dayNum > 7) {
+      dayNum -= 7;
+    }
+
+    // edge case to avoid any infinite loop
+    if (dayNum > 7) {
+      dayNum = 1;
+    }
+    return dayNum;
+  }
+
+  return { getWeatherDataFromLocation, getWeatherCityDataObj, getProperDayNum };
 })();
 
 const weatherDOM = (() => {
@@ -93,7 +109,6 @@ const weatherDOM = (() => {
     const minTempPs = document.querySelectorAll('.min-temp-container > p');
     const maxTempPs = document.querySelectorAll('.max-temp-container > p');
     const forecastDataObj = currentWeatherDataObj.forecastDays;
-    console.log(forecastDataObj);
     let value;
 
     tempHeadings.forEach((tempHeading, index) => {
@@ -179,7 +194,6 @@ const weatherDOM = (() => {
   function changeHourLocationWeatherData(weatherDataContainer, weatherDataObj) {
     const locationHeading = weatherDataContainer.querySelector('.location-heading');
     locationHeading.textContent = `${weatherDataObj.city}, ${weatherDataObj.country}`;
-    console.log(currentTempUnit);
 
     const avgTempHeading = weatherDataContainer.querySelector('.temp-heading');
     if (currentTempUnit === 'celsius') {
@@ -224,6 +238,35 @@ const weatherDOM = (() => {
 
   function changeForecastLocationWeatherData(forecastDataContainer, forecastDataObj, forecastNum) {
     const forecastDay = forecastDataObj[forecastNum].day;
+
+    const daysNumsIdentifiers = {
+      1: 'monday',
+      2: 'tuesday',
+      3: 'wednesday',
+      4: 'thursday',
+      5: 'friday',
+      6: 'saturday',
+      7: 'sunday',
+    };
+
+    if (forecastNum >= 1 && forecastNum <= 2) {
+      let currentDayNum;
+      let incrementor = 0;
+      const forecastDayHeading = forecastDataContainer.querySelector('.forecast-day-heading');
+
+      if (forecastNum === 1) {
+        currentDayNum = currentWeatherDataObj.currentDay;
+      } else if (forecastNum === 2) {
+        incrementor += 1;
+        currentDayNum = Number.parseInt(currentWeatherDataObj.currentDay, 10) + incrementor;
+      }
+
+      currentDayNum = weatherLogic.getProperDayNum(currentDayNum);
+
+      const currentDayString = daysNumsIdentifiers[currentDayNum];
+      forecastDayHeading.textContent = currentDayString.slice(0, 1).toUpperCase()
+      + currentDayString.slice(1);
+    }
 
     const tempHeading = forecastDataContainer.querySelector('.temp-heading');
     if (currentTempUnit === 'celsius') {
