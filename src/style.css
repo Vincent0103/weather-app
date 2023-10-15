@@ -212,12 +212,12 @@ svg {
 
 .lowerpart-weather-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
 }
 
-.lowerpart-weather-container > * {
+.allForecast-location-weather .lowerpart-weather-container > .uvANDwind-container {
   display: grid;
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   justify-content: center;
 }
 
@@ -301,4 +301,11 @@ hr {
 
 .invalid:focus {
   outline: 2px solid rgb(255, 65, 65) !important;
+}
+
+.today-location-weather .airANDhumidity-container,
+.today-location-weather .uvANDwind-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  justify-content: center;
 }

@@ -319,9 +319,6 @@ const weatherDOM = (() => {
       maxTempP.textContent = `${Math.round(forecastDay.maxtemp_f)} F`;
     }
 
-    const airQualityP = forecastDataContainer.querySelector('.air-quality-container > p:last-child');
-    airQualityP.textContent = `${Math.round(forecastDay.air_quality.co)} CO`;
-
     const humidityP = forecastDataContainer.querySelector('.humidity-container > p:last-child');
     humidityP.textContent = Math.round(forecastDay.avghumidity);
 
